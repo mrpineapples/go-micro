@@ -37,24 +37,26 @@
     const sent = document.querySelector("#payload")
     const received = document.querySelector("#received")
 
-    brokerBtn.addEventListener("click", () => {
+    brokerBtn.addEventListener("click", async () => {
         const body = {
             method: "POST"
         }
 
-        fetch("http://localhost:8080", body)
-            .then(res => res.json())
-            .then(data => {
-                sent.innerHTML = "empty post request";
-                received.innerHTML = JSON.stringify(data, undefined, 4);
+        try {
+            const res = await fetch("http://localhost:8080", body)
+            const data = await res.json()
 
-                if (data.error) {
-                    console.log(data.message);
-                } else {
-                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-                }
-            })
-            .catch(err => output.innerHTML += `<br><br>Error: ${err}`)
+            sent.innerHTML = "empty post request";
+            received.innerHTML = JSON.stringify(data, undefined, 4);
+
+            if (data.error) {
+                console.log(data.message);
+            } else {
+                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+            }
+        } catch (e) {
+            output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`
+        }
     })
     </script>
 {{end}}
