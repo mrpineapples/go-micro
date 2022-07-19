@@ -12,7 +12,7 @@ type Config struct{}
 
 func main() {
 	app := Config{}
-	log.Printf("Starting brokers service on port %s\n", PORT)
+	log.Printf("Starting broker service on port %s\n", PORT)
 
 	// define http server
 	srv := &http.Server{
