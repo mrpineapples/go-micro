@@ -26,7 +26,6 @@ type Config struct {
 func main() {
 	log.Println("Starting auth service")
 
-	// TODO: connect to DB
 	conn := connectToDB()
 	if conn == nil {
 		log.Panic("Can't connect to Postgres!")
