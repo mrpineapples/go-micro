@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/rpc"
 
 	"github.com/mrpineapples/broker/event"
 )
@@ -53,7 +54,9 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case "auth":
 		app.authenticate(w, payload.Auth)
 	case "log":
-		app.logRabbitEvent(w, payload.Log)
+		// app.logItem(w, payload.Log)
+		// app.logRabbitEvent(w, payload.Log)
+		app.logItemRPC(w, payload.Log)
 	case "mail":
 		app.sendMail(w, payload.Mail)
 	default:
@@ -112,6 +115,7 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
+// We can log using the logger service directly. Function unused but here for demo purposes.
 func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	data, _ := json.MarshalIndent(entry, "", "\t")
 
@@ -143,6 +147,53 @@ func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
+// We can log by sending an event to RabbitMQ. Function unused.
+func (app *Config) logRabbitEvent(w http.ResponseWriter, l LogPayload) {
+	err := app.pushToQueue(l.Name, l.Data)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	payload := JSONResponse{
+		Message: "logged via RabbitMQ",
+	}
+
+	app.writeJSON(w, http.StatusAccepted, payload)
+}
+
+type RPCPayload struct {
+	Name string
+	Data string
+}
+
+// we can log via RPC.
+func (app *Config) logItemRPC(w http.ResponseWriter, l LogPayload) {
+	client, err := rpc.Dial("tcp", "logger-service:5001")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	rpcPayload := RPCPayload{
+		Name: l.Name,
+		Data: l.Data,
+	}
+
+	var result string
+	err = client.Call("RPCServer.LogInfo", rpcPayload, &result)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	res := JSONResponse{
+		Error:   false,
+		Message: result,
+	}
+	app.writeJSON(w, http.StatusAccepted, res)
+}
+
 func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	data, _ := json.MarshalIndent(msg, "", "\t")
 
@@ -171,20 +222,6 @@ func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	var payload JSONResponse
 	payload.Error = false
 	payload.Message = "Message sent to " + msg.To
-
-	app.writeJSON(w, http.StatusAccepted, payload)
-}
-
-func (app *Config) logRabbitEvent(w http.ResponseWriter, l LogPayload) {
-	err := app.pushToQueue(l.Name, l.Data)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	payload := JSONResponse{
-		Message: "logged via RabbitMQ",
-	}
 
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
