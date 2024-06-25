@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	"github.com/mrpineapples/broker/event"
 )
 
 type RequestPayload struct {
@@ -51,7 +53,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case "auth":
 		app.authenticate(w, payload.Auth)
 	case "log":
-		app.logItem(w, payload.Log)
+		app.logRabbitEvent(w, payload.Log)
 	case "mail":
 		app.sendMail(w, payload.Mail)
 	default:
@@ -171,4 +173,38 @@ func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	payload.Message = "Message sent to " + msg.To
 
 	app.writeJSON(w, http.StatusAccepted, payload)
+}
+
+func (app *Config) logRabbitEvent(w http.ResponseWriter, l LogPayload) {
+	err := app.pushToQueue(l.Name, l.Data)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	payload := JSONResponse{
+		Message: "logged via RabbitMQ",
+	}
+
+	app.writeJSON(w, http.StatusAccepted, payload)
+}
+
+func (app *Config) pushToQueue(name, msg string) error {
+	emitter, err := event.NewEmitter(app.Rabbit)
+	if err != nil {
+		return err
+	}
+
+	payload := LogPayload{
+		Name: name,
+		Data: msg,
+	}
+
+	data, _ := json.MarshalIndent(payload, "", "\t")
+	err = emitter.Push(string(data), "log.INFO")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
