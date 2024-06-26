@@ -15,3 +15,5 @@ bin/
 # Misc
 .DS_Store
 db-data
+caddy_data
+caddy_config

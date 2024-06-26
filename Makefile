@@ -56,13 +56,19 @@ build_auth:
 	@echo "Done!"
 
 ## build_front: builds the frone end binary
-build_front:
-	@echo "Building front end binary..."
+build_front_linux:
+	@echo "Building front end linux binary..."
+	cd ./front-end && env GOOS=linux CGO_ENABLED=0 go build -o bin/${FRONT_END_BINARY} ./cmd/web
+	@echo "Done!"
+
+## build_front: builds the frone end binary
+build_front_mac:
+	@echo "Building front end mac binary..."
 	cd ./front-end && env CGO_ENABLED=0 go build -o bin/${FRONT_END_BINARY} ./cmd/web
 	@echo "Done!"
 
 ## start: starts the front end
-start: build_front
+start: build_front_mac
 	@echo "Starting front end"
 	cd ./front-end && ./bin/${FRONT_END_BINARY} &
 

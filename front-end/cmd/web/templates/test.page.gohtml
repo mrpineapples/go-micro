@@ -96,20 +96,20 @@
         };
 
         try {
-            const res = await fetch("http://localhost:8080/handle", body);
-            const data = await res.json();
+            const res = await fetch({{ print .BrokerURL "/handle"}}, body);
+    const data = await res.json();
 
-            sent.innerHTML = JSON.stringify(payload, undefined, 4);
-            received.innerHTML = JSON.stringify(data, undefined, 4);
+    sent.innerHTML = JSON.stringify(payload, undefined, 4);
+    received.innerHTML = JSON.stringify(data, undefined, 4);
 
-            if (data.error) {
-                output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
-            } else {
-                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-            };
+    if (data.error) {
+        output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+    } else {
+        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+    };
         } catch (e) {
-            output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
-        };
+        output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
+    };
     })
 
     logBtn.addEventListener("click", async () => {
@@ -131,20 +131,20 @@
         }
 
         try {
-            const res = await fetch("http://localhost:8080/handle", body);
-            const data = await res.json();
+            const res = await fetch({{ print .BrokerURL "/handle"}}, body);
+    const data = await res.json();
 
-            sent.innerHTML = JSON.stringify(payload, undefined, 4);
-            received.innerHTML = JSON.stringify(data, undefined, 4);
+    sent.innerHTML = JSON.stringify(payload, undefined, 4);
+    received.innerHTML = JSON.stringify(data, undefined, 4);
 
-            if (data.error) {
-                output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
-            } else {
-                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-            };
+    if (data.error) {
+        output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+    } else {
+        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+    };
         } catch (e) {
-            output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
-        };
+        output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
+    };
     })
 
     logGrpcBtn.addEventListener("click", async () => {
@@ -166,20 +166,20 @@
         }
 
         try {
-            const res = await fetch("http://localhost:8080/log-grpc", body);
-            const data = await res.json();
+            const res = await fetch({{ print .BrokerURL "/log-grpc"}}, body);
+    const data = await res.json();
 
-            sent.innerHTML = JSON.stringify(payload, undefined, 4);
-            received.innerHTML = JSON.stringify(data, undefined, 4);
+    sent.innerHTML = JSON.stringify(payload, undefined, 4);
+    received.innerHTML = JSON.stringify(data, undefined, 4);
 
-            if (data.error) {
-                output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
-            } else {
-                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-            };
+    if (data.error) {
+        output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+    } else {
+        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+    };
         } catch (e) {
-            output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
-        };
+        output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
+    };
     })
 
     brokerBtn.addEventListener("click", async () => {
@@ -188,20 +188,20 @@
         };
 
         try {
-            const res = await fetch("http://localhost:8080", body);
-            const data = await res.json();
+            const res = await fetch({{ .BrokerURL }}, body);
+    const data = await res.json();
 
-            sent.innerHTML = "empty post request";
-            received.innerHTML = JSON.stringify(data, undefined, 4);
+    sent.innerHTML = "empty post request";
+    received.innerHTML = JSON.stringify(data, undefined, 4);
 
-            if (data.error) {
-                console.log(data.message);
-            } else {
-                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-            }
+    if (data.error) {
+        console.log(data.message);
+    } else {
+        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+    }
         } catch (e) {
-            output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
-        };
+        output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
+    };
     })
 
     authBtn.addEventListener("click", async () => {
@@ -223,20 +223,20 @@
         };
 
         try {
-            const res = await fetch("http://localhost:8080/handle", body);
-            const data = await res.json();
+            const res = await fetch({{ print .BrokerURL "/handle"}}, body);
+    const data = await res.json();
 
-            sent.innerHTML = JSON.stringify(payload, undefined, 4);
-            received.innerHTML = JSON.stringify(data, undefined, 4);
+    sent.innerHTML = JSON.stringify(payload, undefined, 4);
+    received.innerHTML = JSON.stringify(data, undefined, 4);
 
-            if (data.error) {
-                output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
-            } else {
-                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-            };
+    if (data.error) {
+        output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+    } else {
+        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+    };
         } catch (e) {
-            output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
-        };
+        output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
+    };
     })
 </script>
 {{end}}
