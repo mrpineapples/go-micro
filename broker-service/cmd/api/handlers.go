@@ -2,12 +2,17 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/rpc"
+	"time"
 
 	"github.com/mrpineapples/broker/event"
+	"github.com/mrpineapples/logger/logs"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type RequestPayload struct {
@@ -41,6 +46,44 @@ func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = app.writeJSON(w, http.StatusOK, payload)
+}
+
+func (app *Config) HandleGRPC(w http.ResponseWriter, r *http.Request) {
+	reqPayload := RequestPayload{}
+	err := app.readJSON(w, r, &reqPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	conn, err := grpc.Dial("logger-service:50001", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer conn.Close()
+
+	c := logs.NewLogServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	_, err = c.WriteLog(ctx, &logs.LogRequest{
+		LogEntry: &logs.Log{
+			Name: reqPayload.Log.Name,
+			Data: reqPayload.Log.Data,
+		},
+	})
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	res := JSONResponse{
+		Error:   false,
+		Message: "logged via grpc!",
+	}
+
+	app.writeJSON(w, http.StatusAccepted, res)
 }
 
 func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {

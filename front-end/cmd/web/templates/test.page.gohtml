@@ -1,43 +1,75 @@
 {{template "base" .}}
 
 {{define "content" }}
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h1 class="mt-5">Test microservices</h1>
-                <hr>
-                <a href="javascript:void(0);" id="brokerBtn" class="btn btn-outline-secondary">Test Broker</a>
-                <a href="javascript:void(0);" id="authBtn" class="btn btn-outline-secondary">Test Auth</a>
-                <a href="javascript:void(0);" id="logBtn" class="btn btn-outline-secondary">Test Log</a>
-                <a href="javascript:void(0);" id="mailBtn" class="btn btn-outline-secondary">Test Mail</a>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="mt-5">Test microservices</h1>
+            <hr>
+            <a
+                href="javascript:void(0);"
+                id="brokerBtn"
+                class="btn btn-outline-secondary"
+            >Test Broker</a>
+            <a
+                href="javascript:void(0);"
+                id="authBtn"
+                class="btn btn-outline-secondary"
+            >Test Auth</a>
+            <a
+                href="javascript:void(0);"
+                id="logBtn"
+                class="btn btn-outline-secondary"
+            >Test Log</a>
+            <a
+                href="javascript:void(0);"
+                id="logGrpcBtn"
+                class="btn btn-outline-secondary"
+            >Test gRPC Log</a>
+            <a
+                href="javascript:void(0);"
+                id="mailBtn"
+                class="btn btn-outline-secondary"
+            >Test Mail</a>
 
-                <div id="output" class="mt-5" style="outline: 1px solid silver; padding: 2em;">
-                    <span class="text-muted">Output shows here...</span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <h4 class="mt-5">Sent</h4>
-                <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
-                    <pre id="payload"><span class="text-muted">Nothing sent yet...</span></pre>
-                </div>
-            </div>
-            <div class="col">
-                <h4 class="mt-5">Received</h4>
-                <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
-                    <pre id="received"><span class="text-muted">Nothing received yet...</span></pre>
-                </div>
+            <div
+                id="output"
+                class="mt-5"
+                style="outline: 1px solid silver; padding: 2em;"
+            >
+                <span class="text-muted">Output shows here...</span>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col">
+            <h4 class="mt-5">Sent</h4>
+            <div
+                class="mt-1"
+                style="outline: 1px solid silver; padding: 2em;"
+            >
+                <pre id="payload"><span class="text-muted">Nothing sent yet...</span></pre>
+            </div>
+        </div>
+        <div class="col">
+            <h4 class="mt-5">Received</h4>
+            <div
+                class="mt-1"
+                style="outline: 1px solid silver; padding: 2em;"
+            >
+                <pre id="received"><span class="text-muted">Nothing received yet...</span></pre>
+            </div>
+        </div>
+    </div>
+</div>
 {{end}}
 
 {{define "js"}}
-    <script>
+<script>
     const brokerBtn = document.querySelector("#brokerBtn");
     const authBtn = document.querySelector("#authBtn");
     const logBtn = document.querySelector("#logBtn");
+    const logGrpcBtn = document.querySelector("#logGrpcBtn");
     const mailBtn = document.querySelector("#mailBtn");
     const output = document.querySelector("#output")
     const sent = document.querySelector("#payload")
@@ -115,6 +147,41 @@
         };
     })
 
+    logGrpcBtn.addEventListener("click", async () => {
+        const payload = {
+            action: "log",
+            log: {
+                name: "event",
+                data: "Some kind of gRPC data"
+            }
+        }
+
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json")
+
+        const body = {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers,
+        }
+
+        try {
+            const res = await fetch("http://localhost:8080/log-grpc", body);
+            const data = await res.json();
+
+            sent.innerHTML = JSON.stringify(payload, undefined, 4);
+            received.innerHTML = JSON.stringify(data, undefined, 4);
+
+            if (data.error) {
+                output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+            } else {
+                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+            };
+        } catch (e) {
+            output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
+        };
+    })
+
     brokerBtn.addEventListener("click", async () => {
         const body = {
             method: "POST"
@@ -171,6 +238,5 @@
             output.innerHTML += `<br><p style="color:red; margin:0">Error: ${e}</p>`;
         };
     })
-    </script>
+</script>
 {{end}}
-
